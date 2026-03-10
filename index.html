@@ -18,13 +18,12 @@
         .button-group { margin-top: 28px; }
         button { background-color: #f8f9fa; border: 1px solid #f8f9fa; border-radius: 4px; color: #3c4043; font-size: 14px; padding: 0 20px; height: 36px; cursor: pointer; }
         button:hover { border: 1px solid #dadce0; box-shadow: 0 1px 1px rgba(0,0,0,0.1); color: #202124; }
-        footer { background-color: #f2f2f2; color: #70757a; font-size: 14px; margin-top: auto; }
+        footer { background-color: #f2f2f2; color: #70757a; font-size: 14px; }
         .footer-content { display: flex; justify-content: space-between; padding: 15px 30px; border-top: 1px solid #dadce0; }
         .footer-links { display: flex; gap: 25px; }
         .footer-links a, .footer-links span { text-decoration: none; color: #70757a; cursor: pointer; }
-        .footer-links a:hover { text-decoration: underline; }
 
-        /* Calculator Modal */
+        /* Calculator Modal Styles */
         #calc-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1000; width: 320px; }
         #calc-modal input, #calc-modal select { width: 100%; margin: 10px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
         #result-display { margin-top: 15px; font-weight: bold; text-align: center; color: #4285F4; min-height: 20px; }
@@ -38,10 +37,10 @@
             <span class="r">R</span><span class="o">o</span><span class="c">c</span><span class="k">k</span><span class="e">e</span><span class="t">t</span>
         </div>
         <div class="search-container">
-            <input type="text" class="search-bar" autofocus placeholder="Search or use tools below">
+            <input type="text" id="main-search" class="search-bar" autofocus placeholder="Type 'archive' or search the web">
         </div>
         <div class="button-group">
-            <button onclick="alert('Searching...')">Rocket Search</button>
+            <button onclick="handleSearch()">Rocket Search</button>
             <button onclick="toggleCalc()">Open Calculator</button>
         </div>
     </main>
@@ -65,7 +64,7 @@
         <div class="footer-content">
             <div class="footer-links">
                 <a href="#">About</a>
-                <a href="archive.html" style="font-weight: bold; color: #4285F4;">RISE Archives</a>
+                <a href="archive.html">Archive Node</a>
             </div>
             <div class="footer-links">
                 <span onclick="toggleCalc()">Calculator (Python)</span>
@@ -103,6 +102,24 @@ def calculate(event):
     </script>
 
     <script>
+        // REDIRECT LOGIC
+        function handleSearch() {
+            const input = document.getElementById("main-search").value.toLowerCase().trim();
+            
+            if (input === "archive" || input === "rise" || input === "data") {
+                window.location.href = "archive.html";
+            } else if (input !== "") {
+                window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(input);
+            }
+        }
+
+        // ENTER KEY LISTENER
+        document.getElementById("main-search").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                handleSearch();
+            }
+        });
+
         function toggleCalc() {
             const modal = document.getElementById('calc-modal');
             const overlay = document.getElementById('overlay');
@@ -113,3 +130,4 @@ def calculate(event):
     </script>
 </body>
 </html>
+How it looks on GitHub
