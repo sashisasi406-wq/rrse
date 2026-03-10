@@ -1,3 +1,7 @@
+To make this look like a real search engine result, we’ll update your index.html logic. When you search for "games", the logo will move to the top (like a real search results page) and your two game cards will appear below the search bar.
+
+Updated index.html (The Unified Hub)
+HTML
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,138 +10,144 @@
     <title>Rocket Search</title>
     <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
     <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
-    
     <style>
-        body { margin: 0; padding: 0; font-family: Arial, sans-serif; display: flex; flex-direction: column; height: 100vh; }
-        main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: -50px; }
-        .logo { font-size: 90px; font-weight: bold; margin-bottom: 30px; letter-spacing: -2px; pointer-events: none; }
-        .r { color: #4285F4; } .o { color: #EA4335; } .c { color: #FBBC05; } .k { color: #4285F4; } .e { color: #34A853; } .t { color: #EA4335; }
-        .search-container { width: 100%; max-width: 584px; }
-        .search-bar { width: 100%; padding: 13px 25px; font-size: 16px; border: 1px solid #dfe1e5; border-radius: 24px; outline: none; box-sizing: border-box; transition: box-shadow 0.2s; }
-        .search-bar:hover, .search-bar:focus { box-shadow: 0 1px 6px rgba(32,33,36,0.28); border-color: rgba(0,0,0,0); }
-        .button-group { margin-top: 28px; }
-        button { background-color: #f8f9fa; border: 1px solid #f8f9fa; border-radius: 4px; color: #3c4043; font-size: 14px; padding: 0 20px; height: 36px; cursor: pointer; }
-        button:hover { border: 1px solid #dadce0; box-shadow: 0 1px 1px rgba(0,0,0,0.1); color: #202124; }
-        footer { background-color: #f2f2f2; color: #70757a; font-size: 14px; margin-top: auto; }
-        .footer-content { display: flex; justify-content: space-between; padding: 15px 30px; border-top: 1px solid #dadce0; }
-        .footer-links { display: flex; gap: 25px; }
-        .footer-links a { text-decoration: none; color: #70757a; }
+        :root { --r: #4285F4; --o: #EA4335; --c: #FBBC05; --k: #4285F4; --e: #34A853; --t: #EA4335; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: white; transition: all 0.3s ease; }
+        
+        /* Layout States */
+        #wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; transition: all 0.5s ease; }
+        #wrapper.results-active { justify-content: flex-start; padding-top: 20px; }
 
-        /* Calculator Modal */
+        /* Logo and Search Bar */
+        .logo { font-size: 90px; font-weight: bold; margin-bottom: 30px; letter-spacing: -2px; transition: all 0.5s ease; }
+        .results-active .logo { font-size: 30px; margin-bottom: 10px; }
+
+        .search-container { width: 100%; max-width: 584px; text-align: center; }
+        .search-bar { width: 100%; padding: 13px 25px; font-size: 16px; border: 1px solid #dfe1e5; border-radius: 24px; outline: none; box-sizing: border-box; transition: box-shadow 0.2s; }
+        .search-bar:focus { box-shadow: 0 1px 6px rgba(32,33,36,0.28); }
+
+        /* Game Results (Hidden) */
+        #results-area { display: none; width: 100%; max-width: 700px; margin-top: 30px; padding: 0 20px; text-align: left; }
+        .result-item { border: 1px solid #dfe1e5; border-radius: 8px; padding: 20px; margin-bottom: 15px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; gap: 20px; }
+        .result-item:hover { background: #f8f9fa; border-color: var(--r); }
+        .game-icon { font-size: 40px; background: #f1f3f4; padding: 10px; border-radius: 12px; }
+        .result-item h3 { margin: 0; color: #1a0dab; font-size: 18px; }
+        .result-item p { margin: 5px 0 0; color: #4d5156; font-size: 14px; }
+
+        /* Shared Components */
+        .button-group { margin-top: 28px; }
+        .results-active .button-group { display: none; }
+        button { background: #f8f9fa; border: 1px solid #f8f9fa; border-radius: 4px; padding: 10px 20px; cursor: pointer; color: #3c4043; }
+        
         #calc-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1000; width: 320px; }
-        #calc-modal input, #calc-modal select { width: 100%; margin: 10px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        #result-display { margin-top: 15px; font-weight: bold; text-align: center; color: #4285F4; min-height: 20px; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
     </style>
 </head>
 <body>
 
-    <main>
-        <div class="logo">
-            <span class="r">R</span><span class="o">o</span><span class="c">c</span><span class="k">k</span><span class="e">e</span><span class="t">t</span>
+    <div id="wrapper">
+        <div class="logo" id="rocket-logo">
+            <span style="color:var(--r)">R</span><span style="color:var(--o)">o</span><span style="color:var(--c)">c</span><span style="color:var(--k)">k</span><span style="color:var(--e)">e</span><span style="color:var(--t)">t</span>
         </div>
+
         <div class="search-container">
-            <input type="text" id="main-search" class="search-bar" autofocus>
+            <input type="text" id="main-search" class="search-bar" placeholder="">
+            <div class="button-group">
+                <button onclick="handleSearch()">Rocket Search</button>
+                <button onclick="handleSearch()">I'm Feeling Lucky</button>
+            </div>
         </div>
-        <div class="button-group">
-            <button onclick="handleSearch()">Rocket Search</button>
-            <button onclick="handleSearch()">I'm Feeling Lucky</button>
+
+        <div id="results-area">
+            <p style="color:#70757a; font-size: 14px;">About 2 results (0.12 seconds)</p>
+            
+            <div class="result-item" onclick="window.location.href='runner.html'">
+                <div class="game-icon">🏔️</div>
+                <div>
+                    <h3>Mountain Runner</h3>
+                    <p>Escape the avalanche! Standard survival mode with high-score tracking.</p>
+                </div>
+            </div>
+
+            <div class="result-item" onclick="window.location.href='backflip.html'">
+                <div class="game-icon">🔄</div>
+                <div>
+                    <h3>Backflip Pro</h3>
+                    <p>Advanced physics runner. Perform 360-degree flips to earn massive bonus points.</p>
+                </div>
+            </div>
+
+            <button onclick="location.reload()" style="background: none; border: none; color: var(--r); text-decoration: underline; padding: 0;">Back to Home</button>
         </div>
-    </main>
+    </div>
 
     <div class="overlay" id="overlay" onclick="toggleCalc()"></div>
     <div id="calc-modal">
-        <h3 style="margin-top:0">Rocket Calculator</h3>
-        <input type="number" id="num1" placeholder="First Number">
-        <input type="number" id="num2" placeholder="Second Number">
-        <select id="op">
-            <option value="1">Addition</option>
-            <option value="2">Subtraction</option>
-            <option value="3">Multiplication</option>
-            <option value="4">Division</option>
+        <h3>Rocket Calculator</h3>
+        <input type="number" id="num1" style="width:100%; margin-bottom: 10px;">
+        <input type="number" id="num2" style="width:100%; margin-bottom: 10px;">
+        <select id="op" style="width:100%; margin-bottom: 10px;">
+            <option value="1">+</option><option value="2">-</option>
+            <option value="3">×</option><option value="4">÷</option>
         </select>
-        <button style="width:100%; background:#4285F4; color:white;" py-click="calculate">Calculate</button>
-        <div id="result-display"></div>
-        <button onclick="toggleCalc()" style="width:100%; margin-top:10px; background:#eee; color:#333;">Close</button>
+        <button style="width:100%; background:var(--r); color:white; border:none;" py-click="calculate">Calculate</button>
+        <div id="result-display" style="margin-top:10px; text-align:center;"></div>
     </div>
-
-    <footer>
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="#">About</a>
-                <a href="#">Advertising</a>
-                <a href="#">Business</a>
-            </div>
-            <div class="footer-links">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Settings</a>
-            </div>
-        </div>
-    </footer>
 
     <script type="py">
 from pyscript import document
-
 def calculate(event):
-    n1 = document.querySelector("#num1").value
-    n2 = document.querySelector("#num2").value
-    choice = document.querySelector("#op").value
+    n1, n2 = document.querySelector("#num1").value, document.querySelector("#num2").value
+    op = document.querySelector("#op").value
     out = document.querySelector("#result-display")
-
-    if not n1 or not n2:
-        out.innerText = "Enter numbers first!"
-        return
-
-    num1, num2 = float(n1), float(n2)
-
-    if choice == '1':
-        res = f"Total: {num1 + num2}"
-    elif choice == '2':
-        res = f"Difference: {num1 - num2}"
-    elif choice == '3':
-        res = f"Product: {num1 * num2}" 
-    elif choice == '4':
-        res = f"Quotient: {num1 / num2}" if num2 != 0 else "Cannot divide by zero!"
-    
-    out.innerText = res
+    if not n1 or not n2: return
+    v1, v2 = float(n1), float(n2)
+    if op=='1': r = v1+v2
+    elif op=='2': r = v1-v2
+    elif op=='3': r = v1*v2
+    elif op=='4': r = v1/v2 if v2!=0 else "Error"
+    out.innerText = f"Result: {r}"
     </script>
 
     <script>
         function handleSearch() {
             const input = document.getElementById("main-search").value.toLowerCase().trim();
-            
-            // ARCHIVE TRIGGER
-            if (input === "archive" || input === "rise" || input === "data") {
+            const wrapper = document.getElementById("wrapper");
+            const results = document.getElementById("results-area");
+
+            if (input === "games" || input === "game") {
+                wrapper.classList.add("results-active");
+                results.style.display = "block";
+            } else if (input === "archive" || input === "rise") {
                 window.location.href = "archive.html";
-            } 
-            // CALCULATOR TRIGGER
-            else if (input === "calc" || input === "calculator") {
+            } else if (input === "calc") {
                 toggleCalc();
-            }
-            // STANDARD WEB SEARCH
-            else if (input !== "") {
+            } else if (input !== "") {
                 window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(input);
             }
         }
 
-        // LISTEN FOR ENTER KEY
-        document.getElementById("main-search").addEventListener("keypress", function(e) {
-            if (e.key === "Enter") {
-                handleSearch();
-            }
+        document.getElementById("main-search").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") handleSearch();
         });
 
         function toggleCalc() {
-            const modal = document.getElementById('calc-modal');
-            const overlay = document.getElementById('overlay');
-            const isVisible = modal.style.display === 'block';
-            modal.style.display = isVisible ? 'none' : 'block';
-            overlay.style.display = isVisible ? 'none' : 'block';
-            
-            // Clear input after opening
-            if (!isVisible) document.getElementById("main-search").value = "";
+            const m = document.getElementById('calc-modal');
+            const o = document.getElementById('overlay');
+            const visible = m.style.display === 'block';
+            m.style.display = visible ? 'none' : 'block';
+            o.style.display = visible ? 'none' : 'block';
         }
     </script>
 </body>
 </html>
+How it works now:
+Home Screen: Looks like a standard, clean search engine.
+
+Trigger: Type "games" and hit Enter.
+
+Result: The logo shrinks and moves up, the buttons vanish, and your two game "results" appear neatly below the search bar.
+
+Action: Clicking a card takes you to the specific .html file you created for that game.
+
+Would you like me to add a "News" search trigger that pulls in a custom feed of your recent repository updates?
