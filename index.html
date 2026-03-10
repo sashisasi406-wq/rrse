@@ -21,9 +21,9 @@
         footer { background-color: #f2f2f2; color: #70757a; font-size: 14px; margin-top: auto; }
         .footer-content { display: flex; justify-content: space-between; padding: 15px 30px; border-top: 1px solid #dadce0; }
         .footer-links { display: flex; gap: 25px; }
-        .footer-links a, .footer-links span { text-decoration: none; color: #70757a; cursor: pointer; }
+        .footer-links a { text-decoration: none; color: #70757a; }
 
-        /* Calculator Modal Styles */
+        /* Calculator Modal */
         #calc-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1000; width: 320px; }
         #calc-modal input, #calc-modal select { width: 100%; margin: 10px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
         #result-display { margin-top: 15px; font-weight: bold; text-align: center; color: #4285F4; min-height: 20px; }
@@ -37,11 +37,11 @@
             <span class="r">R</span><span class="o">o</span><span class="c">c</span><span class="k">k</span><span class="e">e</span><span class="t">t</span>
         </div>
         <div class="search-container">
-            <input type="text" id="main-search" class="search-bar" autofocus placeholder="">
+            <input type="text" id="main-search" class="search-bar" autofocus>
         </div>
         <div class="button-group">
             <button onclick="handleSearch()">Rocket Search</button>
-            <button onclick="toggleCalc()">I'm Feeling Lucky</button>
+            <button onclick="handleSearch()">I'm Feeling Lucky</button>
         </div>
     </main>
 
@@ -58,14 +58,15 @@
         </select>
         <button style="width:100%; background:#4285F4; color:white;" py-click="calculate">Calculate</button>
         <div id="result-display"></div>
+        <button onclick="toggleCalc()" style="width:100%; margin-top:10px; background:#eee; color:#333;">Close</button>
     </div>
 
     <footer>
         <div class="footer-content">
             <div class="footer-links">
+                <a href="#">About</a>
                 <a href="#">Advertising</a>
                 <a href="#">Business</a>
-                <a href="#">How Search works</a>
             </div>
             <div class="footer-links">
                 <a href="#">Privacy</a>
@@ -106,18 +107,21 @@ def calculate(event):
         function handleSearch() {
             const input = document.getElementById("main-search").value.toLowerCase().trim();
             
-            // Hidden Commands
+            // ARCHIVE TRIGGER
             if (input === "archive" || input === "rise" || input === "data") {
                 window.location.href = "archive.html";
             } 
+            // CALCULATOR TRIGGER
             else if (input === "calc" || input === "calculator") {
                 toggleCalc();
             }
+            // STANDARD WEB SEARCH
             else if (input !== "") {
                 window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(input);
             }
         }
 
+        // LISTEN FOR ENTER KEY
         document.getElementById("main-search").addEventListener("keypress", function(e) {
             if (e.key === "Enter") {
                 handleSearch();
@@ -130,6 +134,9 @@ def calculate(event):
             const isVisible = modal.style.display === 'block';
             modal.style.display = isVisible ? 'none' : 'block';
             overlay.style.display = isVisible ? 'none' : 'block';
+            
+            // Clear input after opening
+            if (!isVisible) document.getElementById("main-search").value = "";
         }
     </script>
 </body>
