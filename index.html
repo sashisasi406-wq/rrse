@@ -10,7 +10,7 @@
     <style>
         body { margin: 0; padding: 0; font-family: Arial, sans-serif; display: flex; flex-direction: column; height: 100vh; }
         main { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: -50px; }
-        .logo { font-size: 90px; font-weight: bold; margin-bottom: 30px; letter-spacing: -2px; }
+        .logo { font-size: 90px; font-weight: bold; margin-bottom: 30px; letter-spacing: -2px; pointer-events: none; }
         .r { color: #4285F4; } .o { color: #EA4335; } .c { color: #FBBC05; } .k { color: #4285F4; } .e { color: #34A853; } .t { color: #EA4335; }
         .search-container { width: 100%; max-width: 584px; }
         .search-bar { width: 100%; padding: 13px 25px; font-size: 16px; border: 1px solid #dfe1e5; border-radius: 24px; outline: none; box-sizing: border-box; transition: box-shadow 0.2s; }
@@ -18,7 +18,7 @@
         .button-group { margin-top: 28px; }
         button { background-color: #f8f9fa; border: 1px solid #f8f9fa; border-radius: 4px; color: #3c4043; font-size: 14px; padding: 0 20px; height: 36px; cursor: pointer; }
         button:hover { border: 1px solid #dadce0; box-shadow: 0 1px 1px rgba(0,0,0,0.1); color: #202124; }
-        footer { background-color: #f2f2f2; color: #70757a; font-size: 14px; }
+        footer { background-color: #f2f2f2; color: #70757a; font-size: 14px; margin-top: auto; }
         .footer-content { display: flex; justify-content: space-between; padding: 15px 30px; border-top: 1px solid #dadce0; }
         .footer-links { display: flex; gap: 25px; }
         .footer-links a, .footer-links span { text-decoration: none; color: #70757a; cursor: pointer; }
@@ -37,11 +37,11 @@
             <span class="r">R</span><span class="o">o</span><span class="c">c</span><span class="k">k</span><span class="e">e</span><span class="t">t</span>
         </div>
         <div class="search-container">
-            <input type="text" id="main-search" class="search-bar" autofocus placeholder="Type 'archive' or search the web">
+            <input type="text" id="main-search" class="search-bar" autofocus placeholder="">
         </div>
         <div class="button-group">
             <button onclick="handleSearch()">Rocket Search</button>
-            <button onclick="toggleCalc()">Open Calculator</button>
+            <button onclick="toggleCalc()">I'm Feeling Lucky</button>
         </div>
     </main>
 
@@ -63,13 +63,14 @@
     <footer>
         <div class="footer-content">
             <div class="footer-links">
-                <a href="#">About</a>
-                <a href="archive.html">Archive Node</a>
+                <a href="#">Advertising</a>
+                <a href="#">Business</a>
+                <a href="#">How Search works</a>
             </div>
             <div class="footer-links">
-                <span onclick="toggleCalc()">Calculator (Python)</span>
                 <a href="#">Privacy</a>
                 <a href="#">Terms</a>
+                <a href="#">Settings</a>
             </div>
         </div>
     </footer>
@@ -102,18 +103,21 @@ def calculate(event):
     </script>
 
     <script>
-        // REDIRECT LOGIC
         function handleSearch() {
             const input = document.getElementById("main-search").value.toLowerCase().trim();
             
+            // Hidden Commands
             if (input === "archive" || input === "rise" || input === "data") {
                 window.location.href = "archive.html";
-            } else if (input !== "") {
+            } 
+            else if (input === "calc" || input === "calculator") {
+                toggleCalc();
+            }
+            else if (input !== "") {
                 window.location.href = "https://www.google.com/search?q=" + encodeURIComponent(input);
             }
         }
 
-        // ENTER KEY LISTENER
         document.getElementById("main-search").addEventListener("keypress", function(e) {
             if (e.key === "Enter") {
                 handleSearch();
@@ -130,4 +134,3 @@ def calculate(event):
     </script>
 </body>
 </html>
-How it looks on GitHub
