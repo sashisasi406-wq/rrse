@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RISE | Local Data Archive</title>
+    <style>
+        body { background-color: #121212; font-family: 'Segoe UI', sans-serif; color: #e0e0e0; margin: 0; padding: 20px; }
+        #login-box, #archive-container { background: #1e1e1e; padding: 30px; border-radius: 12px; border: 1px solid #333; width: 95%; max-width: 900px; margin: 50px auto; text-align: center; }
+        #archive-container { display: none; }
+        input[type="text"], input[type="password"] { background: #2c2c2c; color: white; border: 1px solid #444; padding: 12px; width: 200px; border-radius: 6px; margin: 5px; }
+        button { background: #03dac6; color: #000; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-weight: bold; margin: 5px; transition: 0.3s; }
+        button:hover { opacity: 0.8; }
+        
+        .upload-area { background: #252525; border: 2px dashed #03dac6; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        #file-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .doc-card { background: #2c2c2c; padding: 10px; border-radius: 8px; position: relative; border: 1px solid #444; }
+        .doc-card img { width: 100%; height: 110px; object-fit: cover; border-radius: 4px; }
+        .del-btn { position: absolute; top: 5px; right: 5px; background: #cf6679; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; }
+        .download-link { display: block; margin-top: 8px; color: #03dac6; text-decoration: none; font-size: 13px; }
+        
+        .share-controls { margin-top: 30px; padding-top: 20px; border-top: 1px solid #333; }
+        .secondary-btn { background: #bb86fc; color: #000; }
+    </style>
+</head>
+<body>
+
+    <div id="login-box">
+        <h1>RISE ARCHIVES</h1>
+        <input type="text" id="uid" placeholder="ID (10i01-03)">
+        <input type="password" id="ups" placeholder="Password">
+        <button onclick="checkLogin()">Unlock</button>
+    </div>
+
+    <div id="archive-container">
+        <h2 id="archive-title">Archive</h2>
+        
+        <div class="upload-area">
+            <h3>Upload to Local Storage</h3>
+            <input type="text" id="fName" placeholder="File Label">
+            <input type="file" id="fInput">
+            <button onclick="saveFile()">Save File</button>
+        </div>
+
+        <div id="file-grid"></div>
+
+        <div class="share-controls">
+            <h3>Transfer Data</h3>
+            <p style="font-size: 12px; color: #888;">Export your archive to a file to share it with others.</p>
+            <button class="secondary-btn" onclick="exportArchive()">Export Archive (.json)</button>
+            
+            <input type="file" id="importInput" style="display:none" onchange="importArchive(this)" accept=".json">
+            <button class="secondary-btn" onclick="document.getElementById('importInput').click()">Import Archive</button>
+        </div>
+
+        <br><br>
+        <button onclick="location.reload()" style="background:#555; color:white;">Logout & Lock</button>
+    </div>
+
+    <script>
+        let currentID = "";
+
+        function checkLogin() {
+            const id = document.getElementById("uid").value.toLowerCase();
+            const pass = document.getElementById("ups").value;
+            
+            if ((id === "10i01" || id === "10i02" || id === "10i03") && pass === "rise2026") {
+                currentID = id;
+                document.getElementById("archive-title").innerText = "Archive " + id.toUpperCase();
+                document.getElementById("login-box").style.display = "none";
+                document.getElementById("archive-container").style.display = "block";
+                loadFiles();
+            } else { alert("Access Denied"); }
+        }
+
+        function saveFile() {
+            const name = document.getElementById("fName").value;
+            const file = document.getElementById("fInput").files[0];
+            if (!name || !file) return alert("Fill all fields");
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const fileData = {
+                    title: name,
+                    content: e.target.result,
+                    type: file.type
+                };
+
+                let saved = JSON.parse(localStorage.getItem(currentID) || "[]");
+                saved.push(fileData);
+                try {
+                    localStorage.setItem(currentID, JSON.stringify(saved));
+                    loadFiles();
+                    document.getElementById("fName").value = "";
+                    document.getElementById("fInput").value = "";
+                } catch(e) {
+                    alert("Storage full! Try exporting and clearing some files.");
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadFiles() {
+            const grid = document.getElementById("file-grid");
+            grid.innerHTML = "";
+            let saved = JSON.parse(localStorage.getItem(currentID) || "[]");
+
+            saved.forEach((doc, index) => {
+                const isImg = doc.type.startsWith('image/');
+                const preview = isImg ? doc.content : "https://via.placeholder.com/150?text=DOC";
+                
+                grid.innerHTML += `
+                    <div class="doc-card">
+                        <button class="del-btn" onclick="deleteFile(${index})">×</button>
+                        <img src="${preview}">
+                        <p>${doc.title}</p>
+                        <a href="${doc.content}" download="${doc.title}" class="download-link">Download</a>
+                    </div>
+                `;
+            });
+        }
+
+        function deleteFile(index) {
+            let saved = JSON.parse(localStorage.getItem(currentID));
+            saved.splice(index, 1);
+            localStorage.setItem(currentID, JSON.stringify(saved));
+            loadFiles();
+        }
+
+        // --- NEW TRANSFER FUNCTIONS ---
+
+        function exportArchive() {
+            const data = localStorage.getItem(currentID);
+            if (!data || data === "[]") return alert("Archive is empty! Nothing to export.");
+            
+            const blob = new Blob([data], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            
+            a.href = url;
+            a.download = `RISE_Archive_${currentID}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importArchive(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    // Merges imported data with existing local data
+                    let existing = JSON.parse(localStorage.getItem(currentID) || "[]");
+                    const merged = [...existing, ...importedData];
+                    
+                    localStorage.setItem(currentID, JSON.stringify(merged));
+                    loadFiles();
+                    alert("Archive Imported Successfully!");
+                } catch (err) {
+                    alert("Error: This doesn't look like a valid RISE archive file.");
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
